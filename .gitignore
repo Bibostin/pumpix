@@ -1,5 +1,5 @@
 venv
 __pycache__
 TODO
-static/img/
-static/results/
+static/img/*
+static/results/*
