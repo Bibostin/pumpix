@@ -1,24 +1,25 @@
-# ドット絵こんばーた
-画像をモザイク化→色をクラスタリングしてドット絵っぽくします。  
-下記で稼働中  
-[ドット絵こんばーた](https://app.monopro.org/pixel/)  
+# Pumpix
+Pumpix is a hardened, opinionated fork of [monopro pixel convert](https://github.com/tsutsuji815/pixel_convert)
+to support modern python releases and packages. The application allows for the
+rasterisation of images in a minimalistic, easy to use way.
 
-## 必須環境
-- Python 3.x  
-- Flask  
-- Pillow  
-- OpenCV  
-- uWSGI(uWSGIから起動する場合)  
+Pumpix doesn't aim to be the best tool for this purpose, rather a simple one 
+thats easy to enjoy. If you need somthing with a more rounded feature set,
+consider [Dithermark](https://app.dithermark.com), its very cool :)    
 
-## 起動
-pixel_convert.pyをPythonで実行してください  
-Flaskのサーバーがローカルホストで起動しますのでアクセスして後はお好きに遊んでください  
-(デフォルトだとhttp://127.0.0.1:5000/)  
-処理前画像はstatic/img/に、処理結果はstatic/results/に保存されます  
+# Installation:
+Pumpix requires a python version >= `3.9`. Pumpix also requires a redis
+- Python > 3.9 
+- Redis Server
 
-## ざっくりとした動作とか
-- 画像をn分の1に縮小→元サイズに復元してモザイク化します  
-- 必要に応じて平滑化やerodeなどのフィルターを掛けます(出力線のかすれやノイズが入るときに使う)  
-- ピクセルの色をk色にkmeansで分類しそれぞれの平均値を求め、色を置き換え減色します  
-- ドット絵っぽいものが出力されます  
-- 透過pngはRGBに変換されます  
+- clone the repository: `git clone URLHERE; cd pumpix`
+- setup a pyenv: `python -m venv`
+- source the pyenv for package installation `source venv/bin/activate`
+- install the dependencies `pip install -r requirements.txt`
+- run `uwsgi --http 127.0.0.1:8023 --master -p 1 -w wsgi:app`
+- Enjoy! :)
+
+# Credits:
+- Contact me at bibostin@coenin.co.uk or via issue for requests / bugs 
+- [Tsutsuji](https://monopro.org), for the original Flask program.
+- Lax for the cute name.
