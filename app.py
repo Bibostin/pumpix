@@ -16,8 +16,7 @@ CONFIG = {
     'DEBUG': True,
     'PASS_CONFIG': True, 
     'BEHIND_PROXY': True,
-    'GET_LIMIT':  '500/day; 200/hour; 50/minute',
-    'POST_LIMIT': '100/day; 20/hour; 10/minute',
+    'RATE_LIMIT':  '500/day/20/hour;1/minute',
     'UPLOAD_EXTENSIONS': ['.png', '.jpg', '.jpeg'],
     'MAX_CONTENT_LENGTH': 1024 * 1024 * 2, # 2097152B, 2MB.
     'MAX_IMAGE_DIMENSIONS': (1024, 1024), # 1024 * 1024 px
@@ -68,13 +67,13 @@ def return_with_templates(
 
 # Default route
 @app.route('/', methods=['GET'])
-@limiter.limit(app.config['GET_LIMIT'])
+@limiter.limit(app.config['RATE_LIMIT'])
 def index():
     return return_with_templates()
 
 # Respond to a POST request.
 @app.route('/', methods=['POST'])
-@limiter.limit(app.config['POST_LIMIT'])
+@limiter.limit(app.config['RATE_LIMIT'])
 def post():
     req = request
     img = req.files['image']
