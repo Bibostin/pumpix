@@ -16,7 +16,7 @@ CONFIG = {
     'DEBUG': True,
     'PASS_CONFIG': True,
     'BEHIND_PROXY': True,
-    'RATE_LIMIT':  '500/day;20/hour;1/minute',
+    'RATE_LIMIT':  '500/day;100/hour;20/minute',
     'UPLOAD_EXTENSIONS': ['.png', '.jpg', '.jpeg'],
     'MAX_CONTENT_LENGTH': 1024 * 1024 * 2, # 2097152B, 2MB.
     'MAX_IMAGE_DIMENSIONS': (1024, 1024), # 1024 * 1024 px
