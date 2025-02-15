@@ -12,18 +12,24 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 CONFIG = {
-    'VERSION': '1.0.0',
-    'DEBUG': True,
-    'PASS_CONFIG': True,
-    'BEHIND_PROXY': True,
-    'RATE_LIMIT':  '500/day;100/hour;20/minute',
-    'UPLOAD_EXTENSIONS': ['.png', '.jpg', '.jpeg'],
-    'MAX_CONTENT_LENGTH': 1024 * 1024 * 2, # 2097152B, 2MB.
-    'MAX_IMAGE_DIMENSIONS': (1024, 1024), # 1024 * 1024 px
+    'VERSION': '1.0.0', # Application version
+    'DEBUG': True, # Print debug commands
+    'PASS_CONFIG': True, # Pass these config params to clients
+    'BEHIND_PROXY': True, # is flask behind a reverse proxy?
+    'RATE_LIMIT':  '500/day;100/hour;30/minute', # client rate limiting
+    'UPLOAD_EXTENSIONS': ['.png', '.jpg', '.jpeg'], # allowed file extensions
+    'MAX_CONTENT_LENGTH': 1024 * 1024 * 2, # (2097152B, 2MB.
+    'MAX_IMAGE_DIMENSIONS': (1024, 1024), # (px)
 }
 
 app = Flask(__name__)
 app.config.update(CONFIG)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    storage_uri='memory://',
+    strategy='fixed-window-elastic-expiry'
+)
 if app.config['BEHIND_PROXY']:
     app.wsgi_app = ProxyFix(
         app.wsgi_app,
@@ -35,20 +41,15 @@ if app.config['BEHIND_PROXY']:
 if app.config['DEBUG']:
     print(f'config: {CONFIG}')
 
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    storage_uri='memory://',
-    strategy='fixed-window-elastic-expiry'
-)
-
-# Define a standard way for the app to return a  HTML document to the client,
-# within which, specific Templates can be added as needed in the bellow code.
 def return_with_templates(
     org_image=None, result_path=None, colors=None, error=None, k=None,
     scale=None, erode=None, saturation=None, contrast=None, dither=None,
-    alpha=None
-):
+    alpha=None):
+
+    ''' Define a standard means for the app to returm a HTML doc to
+    A prospective client. Specific template params bellow are all
+    optional, and can be added / called as needed.'''
+
     return render_template(
         'index.html',
         k=k,
@@ -65,7 +66,6 @@ def return_with_templates(
         config=CONFIG if app.config['PASS_CONFIG'] else None
     )
 
-# Default route
 @app.route('/', methods=['GET'])
 @limiter.limit(app.config['RATE_LIMIT'])
 def index():
@@ -82,8 +82,8 @@ def post():
 
     # check a file has been supplied
     if img:
-        # do a quick coarse check the extension is actually an image. fail quickly
-        # here for valid clients who make a mistake.
+        # do a quick coarse check the extension is actually an image.
+        # fail quickly here for valid clients who make a mistake.
         img_filename = secure_filename(img.filename)
         img_extension = str(os.path.splitext(img_filename)[1])
         if not img_extension in app.config['UPLOAD_EXTENSIONS']:
@@ -103,7 +103,7 @@ def post():
                 err = f'Invalid file format! (Valid: {app.config["UPLOAD_EXTENSIONS"]})'
                 return return_with_templates(error=err)
 
-        # store the image serversid
+        # store the original image server side
         img_name = hashlib.md5(str(datetime.now()).encode('utf-8')).hexdigest()
         img_path = os.path.join('static/img', img_name + img_extension)
         result_path = os.path.join('static/results', img_name + '.png')
@@ -134,13 +134,13 @@ def post():
     saturation = float(req.form['saturation'])
     contrast = float(req.form['contrast'])
     dither = req.form.get('dither', False, bool)
-    alpha = req.form.get('alpha', False, bool)
+    alpha = req.form.get('alpha', False, bool
+)
     if app.config['DEBUG']:
         msg = (
             f'{addr}: {img_path}\n'
             f'{addr}: {result_path}\n'
             f'{addr}: {req.form}\n'
-            f'{addr}: {k} {scale} {blur} {erode} {saturation} {contrast} {dither} {alpha}'
         )
         print(msg)
 
