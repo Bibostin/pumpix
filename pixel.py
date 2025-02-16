@@ -18,7 +18,7 @@ n4 = np.array([[0, 1, 0],
 
 def rasterise(
     src, k=3, scale=2,  blur=0, erode=0, saturation=0, contrast=0, 
-    color=True, dither=False, alpha=True
+    color=True, alpha=True
 ):
 
     # Most images have a colour mode that pillow can determine: 

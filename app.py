@@ -13,8 +13,8 @@ from flask_limiter.util import get_remote_address
 
 CONFIG = {
     'VERSION': '1.0.0', # Application version
-    'DEBUG': True, # Print debug commands
-    'PASS_CONFIG': True, # Pass these config params to clients
+    'DEBUG': False, # Print debug commands
+    'PASS_CONFIG': False, # Pass these config params to clients
     'BEHIND_PROXY': True, # is flask behind a reverse proxy?
     'RATE_LIMIT':  '500/day;100/hour;30/minute', # client rate limiting
     'UPLOAD_EXTENSIONS': ['.png', '.jpg', '.jpeg'], # allowed file extensions
@@ -43,8 +43,7 @@ if app.config['DEBUG']:
 
 def return_with_templates(
     org_image=None, result_path=None, colors=None, error=None, k=None,
-    scale=None, erode=None, saturation=None, contrast=None, dither=None,
-    alpha=None):
+    scale=None, erode=None, saturation=None, contrast=None, alpha=None):
 
     ''' Define a standard means for the app to returm a HTML doc to
     A prospective client. Specific template params bellow are all
@@ -57,7 +56,6 @@ def return_with_templates(
         erode=erode,
         saturation=saturation,
         contrast=contrast,
-        dither=dither,
         alpha=alpha,
         org_image=org_image,
         result=result_path,
@@ -133,7 +131,6 @@ def post():
     erode = int(req.form['erode'])
     saturation = float(req.form['saturation'])
     contrast = float(req.form['contrast'])
-    dither = req.form.get('dither', False, bool)
     alpha = req.form.get('alpha', False, bool
 )
     if app.config['DEBUG']:
@@ -153,7 +150,6 @@ def post():
         erode=erode,
         saturation=saturation,
         contrast=contrast,
-        dither=dither,
         alpha=alpha
     )
 
@@ -169,30 +165,25 @@ def post():
         erode=erode,
         saturation=saturation,
         contrast=contrast,
-        dither=dither,
         alpha=alpha
     )
 
-# Form malformed
 @app.errorhandler(400)
 def form_error(e):
     err = 'submited settings appear malformed, please try again.'
     return return_with_templates(error=err), 400
 
-# GET URI not found
 @app.errorhandler(404)
 def not_found(e):
     err = 'Unable to find the requested file!'
     return return_with_templates(error=err), 404
 
-# file exceeded MAX_CONTENT_LENGTH
 @app.errorhandler(413)
 def error_file_size(e):
     MAX_MB = app.config['MAX_CONTENT_LENGTH'] / (1024 * 1024)
     err = 'File size exceeds {MAX_MB}MB!'
     return return_with_templates(error=err), 413
 
-# Rate limit exceeded
 @app.errorhandler(429)
 def form_error(e):
     err = 'You have exceeded the rate limit! please be patient.'
