@@ -16,7 +16,7 @@ CONFIG = {
     'DEBUG': False, # Print debug commands
     'PASS_CONFIG': False, # Pass these config params to clients
     'BEHIND_PROXY': True, # is flask behind a reverse proxy?
-    'RATE_LIMIT':  '500/day;100/hour;30/minute', # client rate limiting
+    'RATE_LIMIT':  '1000/day;200/hour;60/minute', # client rate limiting
     'UPLOAD_EXTENSIONS': ['.png', '.jpg', '.jpeg'], # allowed file extensions
     'MAX_CONTENT_LENGTH': 1024 * 1024 * 2, # (2097152B, 2MB.
     'MAX_IMAGE_DIMENSIONS': (1024, 1024), # (px)
@@ -68,6 +68,11 @@ def return_with_templates(
 @limiter.limit(app.config['RATE_LIMIT'])
 def index():
     return return_with_templates()
+
+@app.route("/static/")
+@limiter.limit(app.config['RATE_LIMIT'])
+def fetch_static(name):
+    return send_from_directory('static', name, as_attachement=True)
 
 # Respond to a POST request.
 @app.route('/', methods=['POST'])
