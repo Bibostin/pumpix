@@ -32,11 +32,11 @@ this guide is informed by that choice.
 #### Setup Pumpix
 
 - As the `USER` you intend to run nginx with (typically `nginx`):
-    - Clone the repository to a location as `USER`: `git clone https://github.com/Bibostin/pumpix.git; cd pumpix`
-    - Setup a pyenv: `python -m venv venv`
-    - Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
-    -    Install the dependencies `pip install -r requirements.txt`
-    - Modify `app.py` and change the `CONFIG` parameters of the app appropriately:
+- Clone the repo as `USER`: `git clone https://github.com/Bibostin/pumpix.git; cd pumpix`
+- Setup a pyenv: `python -m venv venv`
+- Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
+- Install the dependencies `pip install -r requirements.txt`
+- Modify `app.py` and change the `CONFIG` parameters of the app appropriately:
 - run `uwsgi --socket 127.0.0.1:8023 --master -p 1 -w wsgi:app`
 
 #### Setup Nginx
