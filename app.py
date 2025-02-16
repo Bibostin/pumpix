@@ -22,7 +22,10 @@ CONFIG = {
     'MAX_IMAGE_DIMENSIONS': (1024, 1024), # (px)
 }
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_url_path='/pumpix_static/',
+    static_folder="pumpix_static")
 app.config.update(CONFIG)
 limiter = Limiter(
     get_remote_address,
@@ -69,11 +72,6 @@ def return_with_templates(
 def index():
     return return_with_templates()
 
-@app.route("/static/")
-@limiter.limit(app.config['RATE_LIMIT'])
-def fetch_static(name):
-    return send_from_directory('static', name, as_attachement=True)
-
 # Respond to a POST request.
 @app.route('/', methods=['POST'])
 @limiter.limit(app.config['RATE_LIMIT'])
@@ -108,8 +106,9 @@ def post():
 
         # store the original image server side
         img_name = hashlib.md5(str(datetime.now()).encode('utf-8')).hexdigest()
-        img_path = os.path.join('static/img', img_name + img_extension)
-        result_path = os.path.join('static/results', img_name + '.png')
+        img_path = os.path.join('pumpix_static/img', img_name + img_extension)
+        result_path = os.path.join('pumpix_static/results', img_name + '.png')
+
         img.stream.seek(0)
         img.save(img_path)
 
@@ -127,7 +126,7 @@ def post():
             return return_with_templates(error=err)
         # otherwise, its valid and we need a new result path
         img_name = hashlib.md5(str(datetime.now()).encode('utf-8')).hexdigest()
-        result_path = os.path.join('static/results', img_name + '.png')
+        result_path = os.path.join('pumpix_static/results', img_name + '.png')
 
     # pull the forms keys into specific values
     k =  int(req.form['k'])
