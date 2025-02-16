@@ -8,21 +8,45 @@ thats easy to enjoy. If you need somthing with a more rounded feature set,
 consider [Dithermark](https://app.dithermark.com), its very cool :)
 
 # Installation:
-Pumpix requires a python version >= `3.9`.
-- add an aplication user with `useradd pumpix -m; su pumpix; cd`
-- clone the repository: `git clone https://github.com/Bibostin/pumpix.git; cd pumpix`
-- setup a pyenv: `python -m venv venv`
-- source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
-- install the dependencies `pip install -r requirements.txt`
-- Modify `app.py` and change the `CONFIG` parameters of the app appropriately:
-- run `uwsgi --http 127.0.0.1:<PORT> --master -p 1 -w wsgi:app`
-- Enjoy! :)
+While Pumpix is *pretty much* distribution agnostic, it does require a python
+version >= `3.9`. ensure you match this with `python -V`.
 
-### Masqerade behind NGINX
-To expose the UWSGI process from NGINX, you can use the a simple proxy pass:
+### Expose directly (localhost):
+- Clone the repository: `git clone https://github.com/Bibostin/pumpix.git; cd pumpix`
+- Setup a pyenv: `python -m venv venv`
+- Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
+- Install the dependencies `pip install -r requirements.txt`
+- Modify `app.py` and change the `CONFIG` parameters of the app appropriately:
+- Run `uwsgi --http 127.0.0.1:8023 --master -p 1 -w wsgi:app`
+- Go to `http://127.0.0.1:8023` in your browser of choice and enjoy! :)
+
+### Behind NGINX (reverse proxy):
+Running Pumpix in this manner implies, you want to use it for a production
+use case. Thanks for liking it so much! but keep in mind, your milage may
+vary, and the bellow guide should only be taken as a template.
+
+I have a preference for exposing web apps on my domain as sub-sites rather
+then as seperate web servers, or `app.<domain>.<tld>` to simplify TLS deployment,
+this guide is informed by that choice.
+
+#### Setup Pumpix
+
+- As the `USER` you intend to run nginx with (typically `nginx`):
+    - Clone the repository to a location as `USER`: `git clone https://github.com/Bibostin/pumpix.git; cd pumpix`
+    - Setup a pyenv: `python -m venv venv`
+    - Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
+    -    Install the dependencies `pip install -r requirements.txt`
+    - Modify `app.py` and change the `CONFIG` parameters of the app appropriately:
+- run `uwsgi --socket 127.0.0.1:8023 --master -p 1 -w wsgi:app`
+
+#### Setup Nginx
+
+Add the following location definition to your nginx configuration.
 ```
-    location ~ ^/(pumpix|static) {
-        proxy_pass http://127.0.0.1:<PORT>;
+    # pass pumpix
+    location ~ ^/pumpix {
+        include uwsgi_params;
+        uwsgi_pass uwsgi://127.0.0.1:8023;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
