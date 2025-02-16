@@ -185,7 +185,7 @@ def not_found(e):
 @app.errorhandler(413)
 def error_file_size(e):
     MAX_MB = app.config['MAX_CONTENT_LENGTH'] / (1024 * 1024)
-    err = 'File size exceeds {MAX_MB}MB!'
+    err = f'File size exceeds {MAX_MB}MB!'
     return return_with_templates(error=err), 413
 
 @app.errorhandler(429)
