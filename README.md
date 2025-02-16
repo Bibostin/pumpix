@@ -3,6 +3,8 @@ Pumpix is a hardened, opinionated fork of [monopro pixel convert](https://github
 to support modern python releases and packages. The application allows for the
 rasterisation of images in a minimalistic, easy to use way.
 
+![Example](pumpix_static/oni.png)
+
 Pumpix doesn't aim to be the best tool for this purpose, rather a simple one
 thats easy to enjoy. If you need somthing with a more rounded feature set,
 consider [Dithermark](https://app.dithermark.com), its very cool :)
