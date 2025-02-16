@@ -67,13 +67,13 @@ def return_with_templates(
         config=CONFIG if app.config['PASS_CONFIG'] else None
     )
 
-@app.route('/', methods=['GET'])
+@app.route('/pumpix', methods=['GET'])
 @limiter.limit(app.config['RATE_LIMIT'])
 def index():
     return return_with_templates()
 
 # Respond to a POST request.
-@app.route('/', methods=['POST'])
+@app.route('/pumpix', methods=['POST'])
 @limiter.limit(app.config['RATE_LIMIT'])
 def post():
     req = request
