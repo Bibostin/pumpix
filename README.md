@@ -55,6 +55,8 @@ Add the following location definition to your nginx configuration.
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 ```
+- An very basic, example sytemd unit exists at `/pumpix_static/pumpix.service`,
+  it requires you to write the path of your pumpix install to function.
 
 # Credits:
 - Contact me at bibostin@coenin.co.uk or via issue for requests / bugs
