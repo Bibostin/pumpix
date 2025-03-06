@@ -154,6 +154,7 @@
                     <select class="form-control" id="saturation" name="saturation">
                         <option value="0" {% if (not saturation) or (saturation==0) %}  selected="selected"{% endif %}>None</option>
                         <option value="1.5" {% if saturation==1.5 %} selected="selected" {% endif %}>Low</option>
+                        <option value="2.0" {% if saturation=2.0 %} selected="selected" {% endif %>Moderate</option>
                         <option value="2.5"{% if saturation==2.5 %} selected="selected" {% endif %}>High</option>
                     </select>
                 </div>

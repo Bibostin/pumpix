@@ -3,3 +3,4 @@ __pycache__
 TODO
 pumpix_static/img/*
 pumpix_static/results/*
+*.swp

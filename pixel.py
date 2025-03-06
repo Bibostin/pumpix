@@ -64,7 +64,7 @@ def rasterise(
         c = 0
 
     # increase the saturation of the image
-    if saturation in [1.5, 2.0]:
+    if saturation in [1.5, 2.0, 2.5]:
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
         hsv[..., 1] = np.clip(hsv[..., 1] * saturation, 0, 255)
         img = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
@@ -77,7 +77,7 @@ def rasterise(
     elif erode == 2:
         img = cv2.erode(img, n8, iterations=1)
     # Smooth the overal nosie in the image to make it look cleaner
-    if blur in [50, 100]:
+    if blur in [50, 100, 200]:
         img = cv2.bilateralFilter(img, 15, blur, 20)
 
     # scale the image down by a scale factor that corrolates to desired pixel 
