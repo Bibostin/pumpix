@@ -1,8 +1,7 @@
-import os
-import cv2
-import hashlib
-import filetype
-from pixel import rasterise
+from cv2 import imwrite
+from os import path
+from filetype import guess
+from hashlib import md5
 from PIL import Image
 from datetime import datetime
 from werkzeug.utils import secure_filename
@@ -11,15 +10,17 @@ from flask import Flask, render_template, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+from pixel import rasterise
+
 CONFIG = {
     'VERSION': '1.0.0', # Application version
     'DEBUG': False, # Print debug commands
-    'PASS_CONFIG': False, # Pass these config params to clients
+    'PASS_CONFIG': False, # Pass these config params to clients for display
     'BEHIND_PROXY': True, # is flask behind a reverse proxy?
     'RATE_LIMIT':  '1000/day;200/hour;60/minute', # client rate limiting
     'UPLOAD_EXTENSIONS': ['.png', '.jpg', '.jpeg'], # allowed file extensions
-    'MAX_CONTENT_LENGTH': 1024 * 1024 * 2, # (2097152B, 2MB.
-    'MAX_IMAGE_DIMENSIONS': (1024, 1024), # (px)
+    'MAX_CONTENT_LENGTH': 1024 * 1024 * 2, # 2097152B, 2MB.
+    'MAX_IMAGE_DIMENSIONS': (1024, 1024), # pixels x pixels
 }
 
 app = Flask(
@@ -72,7 +73,6 @@ def return_with_templates(
 def index():
     return return_with_templates()
 
-# Respond to a POST request.
 @app.route('/pumpix', methods=['POST'])
 @limiter.limit(app.config['RATE_LIMIT'])
 def post():
@@ -86,7 +86,7 @@ def post():
         # do a quick coarse check the extension is actually an image.
         # fail quickly here for valid clients who make a mistake.
         img_filename = secure_filename(img.filename)
-        img_extension = str(os.path.splitext(img_filename)[1])
+        img_extension = str(path.splitext(img_filename)[1])
         if not img_extension in app.config['UPLOAD_EXTENSIONS']:
             err = f'Invalid file format! (Valid: {app.config["UPLOAD_EXTENSIONS"]})'
             return return_with_templates(error=err)
@@ -94,7 +94,7 @@ def post():
         # do a finegrain check the user is being honest with us :) check the
         # file header is to infer the extension, then check validity.
         header = img.stream.read(261)
-        header_format = filetype.guess(header)
+        header_format = guess(header)
         if not header_format:
             err=f'{img_filename} appears to be corrupted, or missing its file header.'
             return return_with_templates(error=err)
@@ -105,10 +105,10 @@ def post():
                 return return_with_templates(error=err)
 
         # store the original image server side
-        img_name = hashlib.md5(str(datetime.now()).encode('utf-8')).hexdigest()
-        img_path = os.path.join('pumpix_static/img', img_name + img_extension)
-        result_path = os.path.join('pumpix_static/results', img_name + '.png')
-
+        img_name = md5(str(datetime.now()).encode('utf-8')).hexdigest()
+        img_path = path.join('pumpix_static/img', img_name + img_extension)
+        result_path = path.join('pumpix_static/results', img_name + '.png')
+        # reseek because were ahead of the stream after fetching the header
         img.stream.seek(0)
         img.save(img_path)
 
@@ -121,22 +121,23 @@ def post():
 
     else:
         # Check if the image path exists on the server
-        if not img_path or not os.path.exists(img_path):
+        if not img_path or not path.exists(img_path):
             err = 'No image supplied or image path is invalid.'
             return return_with_templates(error=err)
-        # otherwise, its valid and we need a new result path
-        img_name = hashlib.md5(str(datetime.now()).encode('utf-8')).hexdigest()
-        result_path = os.path.join('pumpix_static/results', img_name + '.png')
+        # otherwise, its valid, user is using a previous image and we only need
+        # to create a result_path, not a img_path.
+        img_name = md5(str(datetime.now()).encode('utf-8')).hexdigest()
+        result_path = path.join('pumpix_static/results', img_name + '.png')
 
-    # pull the forms keys into specific values
+    # pull the forms keys into specific values sanely
     k =  int(req.form['k'])
     scale = int(req.form['scale'])
     blur = int(req.form['blur'])
     erode = int(req.form['erode'])
     saturation = float(req.form['saturation'])
     contrast = float(req.form['contrast'])
-    alpha = req.form.get('alpha', False, bool
-)
+    alpha = req.form.get('alpha', False, bool)
+
     if app.config['DEBUG']:
         msg = (
             f'{addr}: {img_path}\n'
@@ -159,7 +160,7 @@ def post():
 
     # write the output file to the results folder and return the end result,
     # colors (if applicable) and path to the original image for reprocessing
-    cv2.imwrite(result_path, img_res)
+    imwrite(result_path, img_res)
     return return_with_templates(
         org_image=img_path,
         result_path=result_path,
@@ -193,5 +194,9 @@ def form_error(e):
     err = 'You have exceeded the rate limit! please be patient.'
     return return_with_templates(error=err), 429
 
+# if called directly, use flask
 if __name__ == '__main__':
     app.run()
+# if indirectly, use uwsgi
+else: 
+    application = app
