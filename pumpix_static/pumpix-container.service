@@ -1,0 +1,11 @@
+[Unit]
+Description=uWSGI container instance to serve pumpix
+After=network.target
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/podman start -a pumpix 
+ExecStop=/usr/bin/podman stop -t 2 pumpix
+
+[Install]
+WantedBy=multi-user.target

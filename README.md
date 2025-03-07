@@ -10,53 +10,62 @@ thats easy to enjoy. If you need somthing with a more rounded feature set,
 consider [Dithermark](https://app.dithermark.com), its very cool :)
 
 # Installation:
-While Pumpix is *pretty much* distribution agnostic, it does require a python
-version >= `3.9`. ensure you match this with `python -V`.
 
-### Expose directly (localhost):
+### Run locally (localhost):
+- Pumpix should run anywhere python does, however it requires a version >= `3.9`.
 - Clone the repository: `git clone https://github.com/Bibostin/pumpix.git; cd pumpix`
 - Setup a pyenv: `python -m venv venv`
 - Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
 - Install the dependencies `pip install -r requirements.txt`
 - Modify `app.py` and change the `CONFIG` parameters of the app appropriately:
-- Run `uwsgi --http 127.0.0.1:8023 --master -p 1 -w wsgi:app`
-- Go to `http://127.0.0.1:8023` in your browser of choice and enjoy! :)
+- Run `uwsgi --http-socket 127.0.0.1:8023 --wsgi-file app.py`
+- Go to `http://127.0.0.1:8023/pumpix` in your browser of choice and enjoy! :)
 
-### Behind NGINX (reverse proxy):
-Running Pumpix in this manner implies, you want to use it for a production
-use case. Thanks for liking it so much! but keep in mind, your milage may
-vary, and the bellow guide should only be taken as a template.
-
-I have a preference for exposing web apps on my domain as sub-sites rather
-then as seperate web servers, or `app.<domain>.<tld>` to simplify TLS deployment,
-this guide is informed by that choice.
-
-#### Setup Pumpix
-
-- As the `USER` you intend to run nginx with (typically `nginx`):
+### Install locally (production)
+- As the `USER` you intend to run pumpix and your webserver with (typically `nginx`):
 - Clone the repo as `USER`: `git clone https://github.com/Bibostin/pumpix.git; cd pumpix`
 - Setup a pyenv: `python -m venv venv`
 - Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
 - Install the dependencies `pip install -r requirements.txt`
-- Modify `app.py` and change the `CONFIG` parameters of the app appropriately:
-- run `uwsgi --socket 127.0.0.1:8023 --master -p 1 -w wsgi:app`
+- Modify `app.py` and change the `CONFIG` parameters of the app to preference
+- run `uwsgi --socket 127.0.0.1:8023 --wsgi-file app.py`
+- A very basic, example sytemd unit exists at `/pumpix_static/pumpix.service`,
+  it requires you to write the path of your pumpix install to function.
 
-#### Setup Nginx
+### Install as a container (production)
+- Clone the repository to the orchestrator with `git clone https://github.com/Bibostin/pumpix.git`
+- Modify `app.py` and change the `CONFIG` parameters of the app to preference
+- Navigate out of the repo and build a local image with `podman build pumpix/ --tag pumpix`
+- Run `podman run  --name pumpix -d -p 8023:8023/tcp pumpix` to initiate the container,
+  and if desired, use the systemd unit found at `/pumpix_static/pumpix-container.service`
+  on the orchestrator.
 
-Add the following location definition to your nginx configuration.
+- A more advanced, K8/3/s deployment is left to user preference.
+
+### Masqerade Behind NGINX (reverse proxy):
+I have a preference for exposing web apps on my domain as sub-sites rather
+then as seperate web servers, or `app.<domain>.<tld>` to simplify TLS deployment
+(I'm not a fan of wildcard certs either) this guide is informed by that choice.
+
+This section is valid for both a direct install, and a container, in both cases
+pumpix exposes itself for proxying via a wsgi socket.
+
+- In app.py, make sure `BEHIND_PROXY` is set to `True`
+- Ensure pumpix is running (either in a container or locally.)
+- Add the following location definition to your nginx configuration.
 ```
     # pass pumpix
     location ~ ^/pumpix {
         include uwsgi_params;
-        uwsgi_pass uwsgi://127.0.0.1:8023;
+        uwsgi_pass uwsgi://<127.0.0.1||container-ip>:8023;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 ```
-- An very basic, example sytemd unit exists at `/pumpix_static/pumpix.service`,
-  it requires you to write the path of your pumpix install to function.
+- Restart nginx with `systemctl restart nginx`
+- Enjoy at `http<s>://<yourdomain>.<tld>/pumpix`!
 
 # Credits:
 - Contact me at bibostin@coenin.co.uk or via issue for requests / bugs

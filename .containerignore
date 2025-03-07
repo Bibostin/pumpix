@@ -1,0 +1,5 @@
+# we only really care about ensuring testing venvs 
+# dont get inadvertadly copied over.
+venv/
+__pycache__
+Containerfile
