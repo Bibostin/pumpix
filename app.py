@@ -4,6 +4,7 @@ from threading import Thread
 from os import path, listdir, remove
 from filetype import guess
 from hashlib import md5
+from yaml import safe_load
 from time import sleep, time
 from datetime import datetime
 from werkzeug.utils import secure_filename
@@ -14,29 +15,24 @@ from flask_limiter.util import get_remote_address
 
 from pixel import rasterise
 
-CONFIG = {
-    'DEBUG': False, # Print debug commands
-    'PASS_CONFIG': False, # should pumpix pass CONFIG to clients for display?
-    'BEHIND_PROXY': True, # is flask behind a reverse proxy?
-    'RATE_LIMIT':  '1000/day;200/hour;60/minute', # client rate limits
-    'UPLOAD_EXTENSIONS': ['.png', '.jpg', '.jpeg'], # allowed file extensions
-    'IMAGE_LIFESPAN': 60 * 100, # time (in seconds) to preserve an image
-    'IMAGE_PRUNE_INTERVAL': 60 * 100, # time (in seconds) between image prunes
-    'MAX_IMAGE_DIMENSIONS': (1024, 1024), # (in pixels x pixels)
-    'MAX_IMAGE_SIZE': 1024 * 1024 * 2, #  max file size (in bytes)
-}
-
 app = Flask(
     __name__,
     static_url_path='/pumpix_static/',
     static_folder="pumpix_static")
-app.config.update(CONFIG)
 limiter = Limiter(
     get_remote_address,
     app=app,
     storage_uri='memory://',
     strategy='fixed-window-elastic-expiry'
 )
+with open('config.yaml', 'r') as conf:
+    CONFIG = safe_load(conf)
+    app.config.update(CONFIG)
+
+if app.config['DEBUG']:
+    for key, value in CONFIG.items():
+        print(f'{key}:{value}')
+
 if app.config['BEHIND_PROXY']:
     app.wsgi_app = ProxyFix(
         app.wsgi_app,
@@ -45,8 +41,6 @@ if app.config['BEHIND_PROXY']:
         x_host=1,
         x_prefix=1
     )
-if app.config['DEBUG']:
-    print(f'config: {CONFIG}')
 
 def return_with_templates(
     org_image=None, result_path=None, colors=None, error=None, k=None,
@@ -81,7 +75,8 @@ def prune_files():
         hits = 0
         misses = 0
 
-        # perform the prune
+        # perform the prune (with a 5 second delay from startup)
+        sleep(5)
         print(f'prune started: {datetime.now()}')
         for image_path in paths:
             try:
@@ -232,7 +227,7 @@ cleanup_thread.start()
 
 # if called directly, use flask
 if __name__ == '__main__':
-    app.run()
+    app.run(use_reloader=False)
 # if indirectly, use uwsgi
 else:
     application = app
