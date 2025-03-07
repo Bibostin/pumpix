@@ -13,7 +13,6 @@ from flask_limiter.util import get_remote_address
 from pixel import rasterise
 
 CONFIG = {
-    'VERSION': '1.0.0', # Application version
     'DEBUG': False, # Print debug commands
     'PASS_CONFIG': False, # Pass these config params to clients for display
     'BEHIND_PROXY': True, # is flask behind a reverse proxy?
