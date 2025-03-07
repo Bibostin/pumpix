@@ -9,6 +9,9 @@ Pumpix doesn't aim to be the best tool for this purpose, rather a simple one
 thats easy to enjoy. If you need somthing with a more rounded feature set,
 consider [Dithermark](https://app.dithermark.com), its very cool :)
 
+## Try out Pumpix:
+You can find a reference deployment of the app [here](https://www.coenin.co.uk/pumpix)
+
 # Installation:
 
 ### Run locally (localhost):
