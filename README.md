@@ -21,7 +21,7 @@ consider [Dithermark](https://app.dithermark.com), its very cool :)
 - Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
 - Install the dependencies `pip install -r requirements.txt`
 - Modify `config.yaml` to change the parameters of the app to preference
-- Run `uwsgi --http-socket 127.0.0.1:8023 --wsgi-file app.py`
+- Run `uwsgi --http-socket 127.0.0.1:8023 --wsgi-file app.py --need-app`
 - Go to `http://127.0.0.1:8023/pumpix` in your browser of choice and enjoy! :)
 
 ### Install locally (production)
@@ -31,7 +31,7 @@ consider [Dithermark](https://app.dithermark.com), its very cool :)
 - Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
 - Install the dependencies `pip install -r requirements.txt`
 - Modify `config.yaml` to change the parameters of the app to preference
-- run `uwsgi --socket 127.0.0.1:8023 --wsgi-file app.py`
+- run `uwsgi --socket 127.0.0.1:8023 --wsgi-file app.py --need-app`
 - A very basic, example sytemd unit exists at `/pumpix_static/pumpix.service`,
   it requires you to write the path of your pumpix install to function.
 

@@ -11,4 +11,4 @@ RUN apt-get update && apt-get install libgl1  -y # cv2 complains..
 # Start
 USER pumpix
 EXPOSE 8023
-CMD ["uwsgi", "--socket", "0.0.0.0:8023", "--wsgi-file", "app.py"]
+CMD ["uwsgi", "--socket", "0.0.0.0:8023", "--wsgi-file", "app.py", "--need-app"]

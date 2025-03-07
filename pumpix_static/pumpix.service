@@ -7,7 +7,7 @@ User=nginx
 Group=nginx
 WorkingDirectory=/home/nginx/uwsgi-apps/pumpix
 ExecStart=/bin/bash -c 'source <!!path-to-pumpix-here!!>pumpix/venv/bin/activate \
-          && exec uwsgi --socket 127.0.0.1:8023 --master -p 1 -w wsgi:app'
+          && exec uwsgi --socket 127.0.0.1:8023 --master -p 1 --wsgi-file app.py --need-app'
 
 [Install]
 WantedBy=multi-user.target
