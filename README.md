@@ -20,7 +20,7 @@ consider [Dithermark](https://app.dithermark.com), its very cool :)
 - Setup a pyenv: `python -m venv venv`
 - Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
 - Install the dependencies `pip install -r requirements.txt`
-- Modify `app.py` and change the `CONFIG` parameters of the app appropriately:
+- Modify `config.yaml` to change the parameters of the app to preference
 - Run `uwsgi --http-socket 127.0.0.1:8023 --wsgi-file app.py`
 - Go to `http://127.0.0.1:8023/pumpix` in your browser of choice and enjoy! :)
 
@@ -30,14 +30,14 @@ consider [Dithermark](https://app.dithermark.com), its very cool :)
 - Setup a pyenv: `python -m venv venv`
 - Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
 - Install the dependencies `pip install -r requirements.txt`
-- Modify `app.py` and change the `CONFIG` parameters of the app to preference
+- Modify `config.yaml` to change the parameters of the app to preference
 - run `uwsgi --socket 127.0.0.1:8023 --wsgi-file app.py`
 - A very basic, example sytemd unit exists at `/pumpix_static/pumpix.service`,
   it requires you to write the path of your pumpix install to function.
 
 ### Install as a container (production)
 - Clone the repository to the orchestrator with `git clone https://github.com/Bibostin/pumpix.git`
-- Modify `app.py` and change the `CONFIG` parameters of the app to preference
+- Modify `config.yaml` to change the parameters of the app to preference
 - Navigate out of the repo and build a local image with `podman build pumpix/ --tag pumpix`
 - Run `podman run  --name pumpix -d -p 8023:8023/tcp pumpix` to initiate the container,
   and if desired, use the systemd unit found at `/pumpix_static/pumpix-container.service`
