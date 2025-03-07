@@ -1,8 +1,10 @@
 from cv2 import imwrite
-from os import path
+from PIL import Image
+from threading import Thread
+from os import path, listdir, remove
 from filetype import guess
 from hashlib import md5
-from PIL import Image
+from time import sleep, time
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -14,12 +16,14 @@ from pixel import rasterise
 
 CONFIG = {
     'DEBUG': False, # Print debug commands
-    'PASS_CONFIG': False, # Pass these config params to clients for display
+    'PASS_CONFIG': False, # should pumpix pass CONFIG to clients for display?
     'BEHIND_PROXY': True, # is flask behind a reverse proxy?
-    'RATE_LIMIT':  '1000/day;200/hour;60/minute', # client rate limiting
+    'RATE_LIMIT':  '1000/day;200/hour;60/minute', # client rate limits
     'UPLOAD_EXTENSIONS': ['.png', '.jpg', '.jpeg'], # allowed file extensions
-    'MAX_CONTENT_LENGTH': 1024 * 1024 * 2, # 2097152B, 2MB.
-    'MAX_IMAGE_DIMENSIONS': (1024, 1024), # pixels x pixels
+    'IMAGE_LIFESPAN': 60 * 100, # time (in seconds) to preserve an image
+    'IMAGE_PRUNE_INTERVAL': 60 * 100, # time (in seconds) between image prunes
+    'MAX_IMAGE_DIMENSIONS': (1024, 1024), # (in pixels x pixels)
+    'MAX_IMAGE_SIZE': 1024 * 1024 * 2, #  max file size (in bytes)
 }
 
 app = Flask(
@@ -47,7 +51,6 @@ if app.config['DEBUG']:
 def return_with_templates(
     org_image=None, result_path=None, colors=None, error=None, k=None,
     scale=None, erode=None, saturation=None, contrast=None, alpha=None):
-
     ''' Define a standard means for the app to returm a HTML doc to
     A prospective client. Specific template params bellow are all
     optional, and can be added / called as needed.'''
@@ -66,6 +69,35 @@ def return_with_templates(
         error=error,
         config=CONFIG if app.config['PASS_CONFIG'] else None
     )
+
+def prune_files():
+    ''' check ./pumpix_static/results and ./pumpix_static/img for files
+    older then those decreed by IMAGE_LIFESPAN, and delete them.'''
+
+    while True:
+        cutoff = time() - app.config['IMAGE_LIFESPAN']
+        paths = [path.join('./pumpix_static/img', file) for file in listdir('./pumpix_static/img')]
+        paths += [path.join('./pumpix_static/results', file) for file in listdir('./pumpix_static/results')]
+        hits = 0
+        misses = 0
+
+        # perform the prune
+        print(f'prune started: {datetime.now()}')
+        for image_path in paths:
+            try:
+                image_mtime = path.getmtime(image_path)
+                if image_mtime < cutoff:
+                    remove(image_path)
+                    hits += 1
+                else:
+                    misses +=1
+            except (PermissionError, FileNotFoundError) as e:
+                err = (f'failed to access or find file:{image_path}, skipping.')
+                print(err)
+        print(f'prune completed: {datetime.now()} hits:{hits} misses:{misses}')
+        sleep(app.config['IMAGE_PRUNE_INTERVAL'])
+
+
 
 @app.route('/pumpix', methods=['GET'])
 @limiter.limit(app.config['RATE_LIMIT'])
@@ -184,7 +216,7 @@ def not_found(e):
 
 @app.errorhandler(413)
 def error_file_size(e):
-    MAX_MB = app.config['MAX_CONTENT_LENGTH'] / (1024 * 1024)
+    MAX_MB = app.config['MAX_IMAGE_SIZE'] / (1024 * 1024)
     err = f'File size exceeds {MAX_MB}MB!'
     return return_with_templates(error=err), 413
 
@@ -193,9 +225,14 @@ def form_error(e):
     err = 'You have exceeded the rate limit! please be patient.'
     return return_with_templates(error=err), 429
 
+# setup our cleanup thread
+cleanup_thread = Thread(target=prune_files)
+cleanup_thread.daemon = True
+cleanup_thread.start()
+
 # if called directly, use flask
 if __name__ == '__main__':
     app.run()
 # if indirectly, use uwsgi
-else: 
+else:
     application = app
