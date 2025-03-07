@@ -2,7 +2,7 @@ DEBUG: False  # Print debug commands
 PASS_CONFIG: False  # Should pumpix pass CONFIG to clients for display?
 BEHIND_PROXY: True  # Is Flask behind a reverse proxy?
 RATE_LIMIT: '1000/day;200/hour;60/minute'  # Client rate limits
-IMAGE_LIFESPAN: 6000  # Time (in seconds) to preserve an image
+IMAGE_LIFESPAN: 6000  # Time (in seconds) to preserve an image, -1 to disable
 IMAGE_PRUNE_INTERVAL: 6000  # Time (in seconds) between image prunes
 MAX_IMAGE_DIMENSIONS: 1048576 # (in pixels x pixels)
 MAX_IMAGE_SIZE: 2097152  # Max file size (in bytes)

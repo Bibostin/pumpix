@@ -68,6 +68,13 @@ def prune_files():
     ''' check ./pumpix_static/results and ./pumpix_static/img for files
     older then those decreed by IMAGE_LIFESPAN, and delete them.'''
 
+    # give a period for the flask app to start
+    sleep(2)
+    # check if we actually want to prune
+    if app.config['IMAGE_LIFESPAN'] == -1:
+        print(f'prune disabling: IMAGE_LIFESPAN is -1')
+        return
+
     while True:
         cutoff = time() - app.config['IMAGE_LIFESPAN']
         paths = [path.join('./pumpix_static/img', file) for file in listdir('./pumpix_static/img')]
@@ -75,8 +82,7 @@ def prune_files():
         hits = 0
         misses = 0
 
-        # perform the prune (with a 5 second delay from startup)
-        sleep(5)
+        # perform the prune
         print(f'prune started: {datetime.now()}')
         for image_path in paths:
             try:
