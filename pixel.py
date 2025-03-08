@@ -1,5 +1,4 @@
 # coding:utf-8
-import sys
 import cv2
 from PIL import Image
 import numpy as np

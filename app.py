@@ -42,9 +42,8 @@ if app.config['BEHIND_PROXY']:
         x_prefix=1
     )
 
-def return_with_templates(
-    org_image=None, result_path=None, colors=None, error=None, k=None,
-    scale=None, erode=None, saturation=None, contrast=None, alpha=None):
+def with_templates(org_image=None, result_path=None, colors=None, error=None, 
+    k=None, scale=None, erode=None, saturation=None, contrast=None, alpha=None):
     ''' Define a standard means for the app to returm a HTML doc to
     A prospective client. Specific template params bellow are all
     optional, and can be added / called as needed.'''
@@ -72,7 +71,7 @@ def prune_files():
     sleep(2)
     # check if we actually want to prune
     if app.config['IMAGE_LIFESPAN'] == -1:
-        print(f'prune disabling: IMAGE_LIFESPAN is -1')
+        print('prune disabling: IMAGE_LIFESPAN is -1')
         return
 
     while True:
@@ -92,7 +91,7 @@ def prune_files():
                     hits += 1
                 else:
                     misses +=1
-            except (PermissionError, FileNotFoundError) as e:
+            except (PermissionError, FileNotFoundError):
                 err = (f'failed to access or find file:{image_path}, skipping.')
                 print(err)
         print(f'prune completed: {datetime.now()} hits:{hits} misses:{misses}')
@@ -103,7 +102,7 @@ def prune_files():
 @app.route('/pumpix', methods=['GET'])
 @limiter.limit(app.config['RATE_LIMIT'])
 def index():
-    return return_with_templates()
+    return with_templates()
 
 @app.route('/pumpix', methods=['POST'])
 @limiter.limit(app.config['RATE_LIMIT'])
@@ -119,9 +118,9 @@ def post():
         # fail quickly here for valid clients who make a mistake.
         img_filename = secure_filename(img.filename)
         img_extension = str(path.splitext(img_filename)[1])
-        if not img_extension in app.config['UPLOAD_EXTENSIONS']:
+        if img_extension not in app.config['UPLOAD_EXTENSIONS']:
             err = f'Invalid file format! (Valid: {app.config["UPLOAD_EXTENSIONS"]})'
-            return return_with_templates(error=err)
+            return with_templates(error=err)
 
         # do a finegrain check the user is being honest with us :) check the
         # file header is to infer the extension, then check validity.
@@ -129,12 +128,12 @@ def post():
         header_format = guess(header)
         if not header_format:
             err=f'{img_filename} appears to be corrupted, or missing its file header.'
-            return return_with_templates(error=err)
+            return with_templates(error=err)
 
         header_format = '.' + header_format.extension
-        if not header_format in app.config['UPLOAD_EXTENSIONS']:
+        if header_format not in app.config['UPLOAD_EXTENSIONS']:
                 err = f'Invalid file format! (Valid: {app.config["UPLOAD_EXTENSIONS"]})'
-                return return_with_templates(error=err)
+                return with_templates(error=err)
 
         # store the original image server side
         img_name = md5(str(datetime.now()).encode('utf-8')).hexdigest()
@@ -155,7 +154,7 @@ def post():
         # Check if the image path exists on the server
         if not img_path or not path.exists(img_path):
             err = 'No image supplied or image path is invalid.'
-            return return_with_templates(error=err)
+            return with_templates(error=err)
         # otherwise, its valid, user is using a previous image and we only need
         # to create a result_path, not a img_path.
         img_name = md5(str(datetime.now()).encode('utf-8')).hexdigest()
@@ -193,7 +192,7 @@ def post():
     # write the output file to the results folder and return the end result,
     # colors (if applicable) and path to the original image for reprocessing
     imwrite(result_path, img_res)
-    return return_with_templates(
+    return with_templates(
         org_image=img_path,
         result_path=result_path,
         colors=colors,
@@ -208,23 +207,23 @@ def post():
 @app.errorhandler(400)
 def form_error(e):
     err = 'submited settings appear malformed, please try again.'
-    return return_with_templates(error=err), 400
+    return with_templates(error=err), 400
 
 @app.errorhandler(404)
 def not_found(e):
     err = 'Unable to find the requested file!'
-    return return_with_templates(error=err), 404
+    return with_templates(error=err), 404
 
 @app.errorhandler(413)
 def error_file_size(e):
     MAX_MB = app.config['MAX_IMAGE_SIZE'] / (1024 * 1024)
     err = f'File size exceeds {MAX_MB}MB!'
-    return return_with_templates(error=err), 413
+    return with_templates(error=err), 413
 
 @app.errorhandler(429)
-def form_error(e):
+def rate_limited(e):
     err = 'You have exceeded the rate limit! please be patient.'
-    return return_with_templates(error=err), 429
+    return with_templates(error=err), 429
 
 # setup our cleanup thread
 cleanup_thread = Thread(target=prune_files)
