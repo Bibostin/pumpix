@@ -146,7 +146,7 @@ def post():
         # reopen with pillow to get access to its image propertys and methods,
         # then if img > MAX_IMAGE_DIMENSIONS, downscale and overwrite.
         with Image.open(img_path) as img_pillow:
-            if img_pillow.size > app.config['MAX_IMAGE_DIMENSIONS']:
+            if img_pillow.size > (app.config['MAX_IMAGE_WIDTH'], app.config['MAX_IMAGE_HEIGHT']):
                 img_pillow.thumbnail(app.config['MAX_IMAGE_DIMENSIONS'], Image.LANCZOS)
                 img_pillow.save(img_path)
 
