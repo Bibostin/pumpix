@@ -43,16 +43,16 @@ if app.config['BEHIND_PROXY']:
     )
 
 def with_templates(org_image=None, result_path=None, colors=None, error=None,
-    k=None, scale=None, erode=None, saturation=None, contrast=None, alpha=None):
+    k=None, scale=None, erode=None, blur=None, saturation=None, contrast=None, alpha=None):
     ''' Define a standard means for the app to returm a HTML doc to
     A prospective client. Specific template params bellow are all
     optional, and can be added / called as needed.'''
-
     return render_template(
         'index.html',
         k=k,
         scale=scale,
         erode=erode,
+        blur=blur,
         saturation=saturation,
         contrast=contrast,
         alpha=alpha,
@@ -200,6 +200,7 @@ def post():
         k=k,
         scale=scale,
         erode=erode,
+        blur=blur,
         saturation=saturation,
         contrast=contrast,
         alpha=alpha
