@@ -42,7 +42,7 @@ if app.config['BEHIND_PROXY']:
         x_prefix=1
     )
 
-def with_templates(org_image=None, result_path=None, colors=None, error=None, 
+def with_templates(org_image=None, result_path=None, colors=None, error=None,
     k=None, scale=None, erode=None, saturation=None, contrast=None, alpha=None):
     ''' Define a standard means for the app to returm a HTML doc to
     A prospective client. Specific template params bellow are all
@@ -67,8 +67,9 @@ def prune_files():
     ''' check ./pumpix_static/results and ./pumpix_static/img for files
     older then those decreed by IMAGE_LIFESPAN, and delete them.'''
 
-    # give a period for the flask app to start
-    sleep(2)
+    static_img = './pumpix_static/img'
+    static_res = './pumpix_static/results'
+
     # check if we actually want to prune
     if app.config['IMAGE_LIFESPAN'] == -1:
         print('prune disabling: IMAGE_LIFESPAN is -1')
@@ -76,8 +77,8 @@ def prune_files():
 
     while True:
         cutoff = time() - app.config['IMAGE_LIFESPAN']
-        paths = [path.join('./pumpix_static/img', file) for file in listdir('./pumpix_static/img')]
-        paths += [path.join('./pumpix_static/results', file) for file in listdir('./pumpix_static/results')]
+        paths = [path.join(static_img, file) for file in listdir(static_img)]
+        paths += [path.join(static_res , file) for file in listdir(static_res)]
         hits = 0
         misses = 0
 
@@ -85,8 +86,7 @@ def prune_files():
         print(f'prune started: {datetime.now()}')
         for image_path in paths:
             try:
-                image_mtime = path.getmtime(image_path)
-                if image_mtime < cutoff:
+                if path.getmtime(image_path) < cutoff:
                     remove(image_path)
                     hits += 1
                 else:
@@ -150,10 +150,11 @@ def post():
                 img_pillow.thumbnail(app.config['MAX_IMAGE_DIMENSIONS'], Image.LANCZOS)
                 img_pillow.save(img_path)
 
+    # otherwise the user may want to use the previous image
     else:
         # Check if the image path exists on the server
         if not img_path or not path.exists(img_path):
-            err = 'No image supplied or image path is invalid.'
+            err = 'No image supplied or existing image has been pruned.'
             return with_templates(error=err)
         # otherwise, its valid, user is using a previous image and we only need
         # to create a result_path, not a img_path.
