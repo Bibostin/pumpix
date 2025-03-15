@@ -1,0 +1,72 @@
+/* note for self, dodopop is all lowercase */
+@font-face {                                                                    
+    font-family: 'Dodopop';                                                     
+    src: url('pumpix_static/theme/dodopop-regular.woff') format('woff');                 
+    font-weight: normal;                                                        
+    font-style: normal;                                                         
+    font-display: swap;                                                         
+}     
+
+root{
+    --c-font: #1a1616;                                                        
+    --c-bg1: #FFFFFF;  
+    --c-bg2: #a8acb3;                                                         
+    --c-highlight: #fa7d00;                                                       
+
+    font-family: 'Dodopop';
+}
+
+label {
+    display: inline-block;
+}
+select {
+    background: var(--c-bg1);
+}
+
+.icon {
+    max-width: 7%;
+    object-fit: scale-down;
+}
+
+.grid-container {
+    display: grid; 
+    justify-items: center;
+    gap: 0px 0px; 
+    grid-template-columns: 1fr 1fr 1fr; 
+    grid-template-rows: 1fr 1fr 1fr; 
+    grid-template-areas: 
+      "grid-header  grid-header     grid-header"
+      "grid-sidebar grid-imagespace grid-imagespace"
+      "grid-footer  grid-footer     grid-footer"; 
+}
+.grid-header{
+    grid-area: grid-header;
+}
+
+.grid-siidebar{
+     grid-area: grid-sidebar;
+}
+
+.grid-imagespace{
+     grid-area: grid-imagespace;
+}
+
+.grid-footer {
+    grid-area: grid-footer;
+}
+
+.hidden{
+    display: none;
+}
+
+.inline {
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1.5;
+}
+
+.main-img {
+    max-width: 1024px;
+    max-height: 1024px;
+}
