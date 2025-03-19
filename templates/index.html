@@ -12,150 +12,153 @@
 </head>
 
 <body>
-        
-<div class="grid-container">
 
-    <div class="grid-header">        
-        <h1>Pumpix</h1>
-    
-        <div class="info hidden">
-            {% if config %}
-                <h3>Instance Configuration</H3>
-                {% for key, value in config.items() %}
-                    {{ key }}: {{ value }}<br>
-                {% endfor %}
-            {% endif %}
-        
-            <h3>What is Pumpix?</h3>
-            <p> Pumpix is a hardened, opinionated fork of
-            <a href="https://github.com/tsutsuji815/pixel_convert">Monopro Pixel Convert</a>
-            to support modern python releases and packages. The application
-            allows for the rasterisation of images in a minimalistic,
-            easy to use way.<br><br>
-        
-            Pumpix doesn't aim to be the best tool for this purpose, rather
-            a simple one thats easy to enjoy. If you need somthing with a
-            more rounded feature set, consider <a href="https://app.dithermark.com">Dithermark</a>,
-            its very cool :)
-            </p>
-        
-            <h3>How does Pumpix work?</h3>
-            <p>
-            Pumpix has been commented extensively to explain its operation,
-            if you are new to opensource, flask and image processing its
-            quite a good place to get started! see the
-            <a href="https://github.com/Bibostin/pumpix">Repo</a>. Please use issues for requests / bugs.
-            </p>
-        
-            <h3>Credits</h3>
-            <ul>
-            <li><a href="https://monopro.org">Tsutsuj</a>, for the original Flask web app</li>
-            <li>Lax for the cute name</li>
-            </ul>
-        </div>
-    </div>
-
-
-    <div class="grid-sidebar">
-        <form action="./pumpix" method="post" enctype="multipart/form-data">
-        
-        <input type="file" id="image" name="image" accept="image/png,image/jpeg">
-        {% if org_image %}
-            Using Previous image!
-            <input type="hidden" id="img_path" name="img_path"  value="{{ org_image }}">
+    <div class="info hidden">
+        {% if config %}
+            <h3>Instance Configuration</H3>
+            {% for key, value in config.items() %}
+                {{ key }}: {{ value }}<br>
+            {% endfor %}
         {% endif %}
 
-        <ul>     
-            
-            <li>
-                <label for="k">No. of colours</label>
-                <select id="k" name="k">
-                    <option value="2" {% if k==2 %} selected="selected" {% endif %}>2</option>
-                    <option value="4" {% if (not k) or (k==4) %} selected="selected" {% endif %}>4</option>
-                    <option value="8" {% if k==8 %} selected="selected" {% endif %}>8</option>
-                    <option value="16" {% if k==16 %} selected="selected" {% endif %}>16</option>
-                </select>
-            </li>
-     
-            <li>
-                <label for="scale">Pixel Size</label>
-                <select id="scale" name="scale">
-                    <option value="1" {% if scale==1 %} selected="selected" {% endif %}>1</option>
-                    <option value="2" {% if (not scale) or (scale==2) %} selected="selected" {% endif %}>2</option>
-                    <option value="3" {% if scale==3 %} selected="selected" {% endif %}>3</option>
-                    <option value="4" {% if scale==4 %} selected="selected" {% endif %}>4</option>
-                </select>
-            </li>
+        <h3>What is Pumpix?</h3>
+        <p> Pumpix is a hardened, opinionated fork of
+        <a href="https://github.com/tsutsuji815/pixel_convert">Monopro Pixel Convert</a>
+        to support modern python releases and packages. The application
+        allows for the rasterisation of images in a minimalistic,
+        easy to use way.<br><br>
 
+        Pumpix doesn't aim to be the best tool for this purpose, rather
+        a simple one thats easy to enjoy. If you need somthing with a
+        more rounded feature set, consider <a href="https://app.dithermark.com">Dithermark</a>,
+        its very cool :)
+        </p>
 
-            <li>
-                <label for="blur">Image Smoothing</label>
-                <select id="blur" name="blur">
-                    <option value="0" {% if (not blur) or (blur==0) %} selected="selected" {% endif %}>None</option>
-                    <option value="50"  {% if blur==50 %} selected="selected" {% endif %}>Low</option>
-                    <option value="100" {% if blur==100 %} selected="selected" {% endif %}>Moderate</option>
-                    <option value="200" {% if blur==200 %} selected="selected" {% endif %}>Strong</option>
-                </select>
-            </li>
+        <h3>How does Pumpix work?</h3>
+        <p>
+        Pumpix has been commented extensively to explain its operation,
+        if you are new to opensource, flask and image processing its
+        quite a good place to get started! see the
+        <a href="https://github.com/Bibostin/pumpix">Repo</a>. Please use issues for requests / bugs.
+        </p>
 
-            <li>
-                <label for="erode">Border Emphasis</label>
-                <select id="erode" name="erode">
-                    <option value="0" {% if (not erode) or (erode==0) %} selected="selected" {% endif %}>None</option>
-                    <option value="1" {% if erode==1 %} selected="selected" {% endif %}>Low</option>
-                    <option value="2" {% if erode==2 %} selected="selected" {% endif %}>Moderate</option>
-                </select>
-            </li>
-
-            <li>
-                <label for="saturation">Add Saturation</label>
-                <select id="saturation" name="saturation">
-                    <option value="0" {% if (not saturation) or (saturation==0) %}  selected="selected"{% endif %}>None</option>
-                    <option value="1.5" {% if saturation==1.5 %} selected="selected" {% endif %}>Low</option>
-                    <option value="2.0" {% if saturation==2.0 %} selected="selected" {% endif %}>Moderate</option>
-                    <option value="2.5"{% if saturation==2.5 %} selected="selected" {% endif %}>High</option>
-                </select>
-            </li>
-
-
-            <li>
-                <label for="contrast">Add Contrast</label>
-                <select id="contrast" name="contrast">
-                    <option value="0" {% if (not contrast) or (contrast==0) %}  selected="selected"{% endif %}>None</option>
-                    <option value="1.25" {% if contrast==1.25 %} selected="selected" {% endif %}>Low</option>
-                    <option value="1.5" {% if contrast==1.5 %} selected="selected" {% endif %}>Strong</option>
-                </select>
-            </li>
+        <h3>Credits</h3>
+        <ul>
+        <li><a href="https://monopro.org">Tsutsuj</a>, for the original Flask web app</li>
+        <li>Lax for the cute name</li>
         </ul>
-        <button type="submit" class="btn btn-primary col-lg-12">Submit Image</button>
-        </form>
     </div>
 
-    <div class="grid-imagespace">
+    <div class="flex-container">
+
+        <div class="flex-sidebar bordered">
+            <a href="/pumpix"><h1>pumpix</h1></a>
+            <button class="img-button" id="info-button" type="button"></button>
+            <button class="img-button" id="download-button" type="button"></button>
+            <button class="img-button" id="darkmode-button" type="button"></button>
+            <hr>
+           
+ 
+            <form action="./pumpix" method="post" enctype="multipart/form-data">
+            <input type="file" style="display: none;" id="image" name="image" accept="image/png,image/jpeg,image/webp">
+            <input class="dialog-button bordered" type="button" value="Browse..." onclick="document.getElementById('image').click();" />
+            {% if org_image %}
+                <br>
+                Using Previous image!
+                <input type="hidden" id="img_path" name="img_path"  value="{{ org_image }}">
+            {% endif %}
+
+            <ul>
+                <li>
+                    <label for="k">No. of colours</label>
+                    <select class="dialog-button bordered" id="k" name="k">
+                        <option value="2" {% if k==2 %} selected="selected" {% endif %}>2</option>
+                        <option value="4" {% if (not k) or (k==4) %} selected="selected" {% endif %}>4</option>
+                        <option value="8" {% if k==8 %} selected="selected" {% endif %}>8</option>
+                        <option value="16" {% if k==16 %} selected="selected" {% endif %}>16</option>
+                    </select>
+                </li>
+
+                <li>
+                    <label for="scale">Pixel Size</label>
+                    <select class="dialog-button bordered" id="scale" name="scale">
+                        <option value="1" {% if scale==1 %} selected="selected" {% endif %}>1</option>
+                        <option value="2" {% if (not scale) or (scale==2) %} selected="selected" {% endif %}>2</option>
+                        <option value="3" {% if scale==3 %} selected="selected" {% endif %}>3</option>
+                        <option value="4" {% if scale==4 %} selected="selected" {% endif %}>4</option>
+                    </select>
+                </li>
+
+
+                <li>
+                    <label for="blur">Image Smoothing</label>
+                    <select class="dialog-button bordered" id="blur" name="blur">
+                        <option value="0" {% if (not blur) or (blur==0) %} selected="selected" {% endif %}>None</option>
+                        <option value="50"  {% if blur==50 %} selected="selected" {% endif %}>Low</option>
+                        <option value="100" {% if blur==100 %} selected="selected" {% endif %}>Moderate</option>
+                        <option value="200" {% if blur==200 %} selected="selected" {% endif %}>Strong</option>
+                    </select>
+                </li>
+
+                <li>
+                    <label for="erode">Border Emphasis</label>
+                    <select class="dialog-button bordered"  id="erode" name="erode">
+                        <option value="0" {% if (not erode) or (erode==0) %} selected="selected" {% endif %}>None</option>
+                        <option value="1" {% if erode==1 %} selected="selected" {% endif %}>Low</option>
+                        <option value="2" {% if erode==2 %} selected="selected" {% endif %}>Moderate</option>
+                    </select>
+                </li>
+
+                <li>
+                    <label for="saturation">Add Saturation</label>
+                    <select class="dialog-button bordered" id="saturation" name="saturation">
+                        <option value="0" {% if (not saturation) or (saturation==0) %}  selected="selected"{% endif %}>None</option>
+                        <option value="1.5" {% if saturation==1.5 %} selected="selected" {% endif %}>Low</option>
+                        <option value="2.0" {% if saturation==2.0 %} selected="selected" {% endif %}>Moderate</option>
+                        <option value="2.5"{% if saturation==2.5 %} selected="selected" {% endif %}>High</option>
+                    </select>
+                </li>
+
+
+                <li>
+                    <label for="contrast">Add Contrast</label>
+                    <select class="dialog-button bordered" id="contrast" name="contrast">
+                        <option value="0" {% if (not contrast) or (contrast==0) %}  selected="selected"{% endif %}>None</option>
+                        <option value="1.25" {% if contrast==1.25 %} selected="selected" {% endif %}>Low</option>
+                        <option value="1.5" {% if contrast==1.5 %} selected="selected" {% endif %}>Strong</option>
+                    </select>
+                </li>
+            </ul>
+            <button class="dialog-button bordered" type="submit">Submit Image</button>
+            </form>
+        </div>
+
+    <div class="flex-imagespace bordered">
         {% if result %}
-
-            <button id="result">Result</button>
-            <button id="original">Original</button>
-
-            <div id="result-div">
-                <img src="{{ result }}">
-                {% if colors %}
-                    {% for color in colors %}
-                        <span style="background-color: {{ color }};">{{ color }}</span>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
-            <div id="original-div" class="hidden">                
-                <img src="{{ org_image }}">
-            </div>
-
+            <img class="main-img" src="{{ result }}">
+            <img class="main-img" src="{{ org_image }}">
+            {% if colors %}
+                <hr>
+                {% for color in colors %}
+                    <span class="image-color" style="
+                        background-color:{{ color }};
+                        border: 3px solid {{ color }}; 
+                        border-radius: 5px;
+                    ">{{ color }}</span>
+                {% endfor %}
+            {% endif %}
         {% endif %}
     </div>
 
 
     {% if error %}
-        {{ error }}
+        <dialog class="popup bordered" open>
+            {{ error }}
+            <br>
+            <form method="dialog">
+                <button class="dialog-button bordered">OK</button>
+            </form>
+        </dialog>
     {% endif %}
 
 </div>
