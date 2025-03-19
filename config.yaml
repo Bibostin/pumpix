@@ -11,3 +11,4 @@ UPLOAD_EXTENSIONS:  # Allowed file extensions
   - .png
   - .jpg
   - .jpeg
+  - .webp
