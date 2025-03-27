@@ -13,52 +13,15 @@
 
 <body>
 
-    <div class="info hidden">
-        {% if config %}
-            <h3>Instance Configuration</H3>
-            {% for key, value in config.items() %}
-                {{ key }}: {{ value }}<br>
-            {% endfor %}
-        {% endif %}
-
-        <h3>What is Pumpix?</h3>
-        <p> Pumpix is a hardened, opinionated fork of
-        <a href="https://github.com/tsutsuji815/pixel_convert">Monopro Pixel Convert</a>
-        to support modern python releases and packages. The application
-        allows for the rasterisation of images in a minimalistic,
-        easy to use way.<br><br>
-
-        Pumpix doesn't aim to be the best tool for this purpose, rather
-        a simple one thats easy to enjoy. If you need somthing with a
-        more rounded feature set, consider <a href="https://app.dithermark.com">Dithermark</a>,
-        its very cool :)
-        </p>
-
-        <h3>How does Pumpix work?</h3>
-        <p>
-        Pumpix has been commented extensively to explain its operation,
-        if you are new to opensource, flask and image processing its
-        quite a good place to get started! see the
-        <a href="https://github.com/Bibostin/pumpix">Repo</a>. Please use issues for requests / bugs.
-        </p>
-
-        <h3>Credits</h3>
-        <ul>
-        <li><a href="https://monopro.org">Tsutsuj</a>, for the original Flask web app</li>
-        <li>Lax for the cute name</li>
-        </ul>
-    </div>
 
     <div class="flex-container">
 
         <div class="flex-sidebar bordered">
             <a href="/pumpix"><h1>pumpix</h1></a>
-            <button class="img-button" id="info-button" type="button"></button>
-            <button class="img-button" id="download-button" type="button"></button>
-            <button class="img-button" id="darkmode-button" type="button"></button>
+            <input type="image" id="info-button" class="button-img" src="/pumpix_static/theme/icons/infoblack.png"/>
+            <input type="image" id="darkmode-button" class="button-img" src="/pumpix_static/theme/icons/moon.png"/>
             <hr>
            
- 
             <form action="./pumpix" method="post" enctype="multipart/form-data">
             <input type="file" style="display: none;" id="image" name="image" accept="image/png,image/jpeg,image/webp">
             <input class="dialog-button bordered" type="button" value="Browse..." onclick="document.getElementById('image').click();" />
@@ -68,7 +31,7 @@
                 <input type="hidden" id="img_path" name="img_path"  value="{{ org_image }}">
             {% endif %}
 
-            <ul>
+            <ul class=form-grid>
                 <li>
                     <label for="k">No. of colours</label>
                     <select class="dialog-button bordered" id="k" name="k">
@@ -150,15 +113,55 @@
         {% endif %}
     </div>
 
+    <div class="info hidden popup bordered draggable">
+        <span class="popup-header">
+            <button id=info-close-button class="close-button bordered">X</button> 
+       </span>
+        {% if config %}
+            <h3>Instance Configuration</H3>
+            {% for key, value in config.items() %}
+                {{ key }}: {{ value }}<br>
+            {% endfor %}
+        {% endif %}
+
+        <h2>What is Pumpix?</h2>
+        <p> Pumpix is a hardened, opinionated fork of
+        <a href="https://github.com/tsutsuji815/pixel_convert">Monopro Pixel Convert</a>
+        to support modern python releases and packages. The application
+        allows for the rasterisation of images in a minimalistic,
+        easy to use way.<br><br>
+
+        Pumpix doesn't aim to be the best tool for this purpose, rather
+        a simple one thats easy to enjoy. If you need somthing with a
+        more rounded feature set, consider <a href="https://app.dithermark.com">Dithermark</a>,
+        its very cool :)
+        </p>
+
+        <h3>How does Pumpix work?</h3>
+        <p>
+        Pumpix has been commented extensively to explain its operation,
+        if you are new to opensource, flask and image processing its
+        quite a good place to get started! see the
+        <a href="https://github.com/Bibostin/pumpix">Repo</a>. Please use issues for requests / bugs.
+        </p>
+
+        <h3>Credits</h3>
+        <ul>
+        <li><a href="https://monopro.org">Tsutsuj</a>, for the original Flask web app</li>
+        <li>Lax for the cute name</li>
+        </ul>
+    </div>
+
+
 
     {% if error %}
-        <dialog class="popup bordered" open>
+        <div class="error popup bordered  draggable">
+            <span class="popup-header">                                             
+                <button id=error-close-button class="close-button bordered">X</button> 
+            </span> 
+            <h3>Pumpix has encountered an error!</h3> 
             {{ error }}
-            <br>
-            <form method="dialog">
-                <button class="dialog-button bordered">OK</button>
-            </form>
-        </dialog>
+        </div>
     {% endif %}
 
 </div>
