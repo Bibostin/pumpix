@@ -16,20 +16,20 @@ n4 = np.array([[0, 1, 0],
               np.uint8)
 
 def rasterise(
-    src, k=3, scale=2,  blur=0, erode=0, saturation=0, contrast=0, 
+    src, k=3, scale=2,  blur=0, erode=0, saturation=0, contrast=0,
     color=True, alpha=True
 ):
 
-    # Most images have a colour mode that pillow can determine: 
+    # Most images have a colour mode that pillow can determine:
     # Luminance (L) - each pixels shade (greyscale is one 8 bit int (0-256)
     # Pallette images (P) - each pixels colour is one 8 bit int
     # Red Green Blue (RGB - each pixels colour is three 8 bit ints
     # Red Green Blue Alpha (RGBA) - RGB, but with a additional int for opacity
 
-    # if we are preserving alpha, check the image is RGBA or P, if its a P
-    # it doesn't have an alpha channel, and must be converted to RGBA 
+    # if we are working with an alpha parsable image, check the image is RGBA or P
+    # if its a P  it doesn't have an alpha channel, and must be converted to RGBA
     img_pillow = Image.open(src)
-    if (img_pillow.mode == 'RGBA' or img_pillow.mode == 'P') and alpha:
+    if (img_pillow.mode == 'RGBA' or img_pillow.mode == 'P'):
         if img_pillow.mode != 'RGBA':
             img_pillow = img_pillow.convert('RGBA')
         alpha_mode = True
@@ -56,7 +56,7 @@ def rasterise(
     elif color:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         h, w, c = img.shape
-    # otherwise this is is an L image, pull 
+    # otherwise this is is an L image, pull
     else:
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         h, w = img.shape
@@ -79,16 +79,16 @@ def rasterise(
     if blur in [50, 100, 200]:
         img = cv2.bilateralFilter(img, 15, blur, 20)
 
-    # scale the image down by a scale factor that corrolates to desired pixel 
+    # scale the image down by a scale factor that corrolates to desired pixel
     # size, with alpha scaled if needed.
     d_h = int(h / scale)
     d_w = int(w / scale)
     img = cv2.resize(img, (d_w, d_h), interpolation=cv2.INTER_NEAREST)
     if alpha_mode:
         a = cv2.resize(a, (d_w, d_h), interpolation=cv2.INTER_NEAREST)
-    
-    if color: 
-        img_cp = img.reshape(-1, c) 
+
+    if color:
+        img_cp = img.reshape(-1, c)
     else:
         img_cp = img.reshape(-1)
     img_cp = img_cp.astype(np.float32)
@@ -100,7 +100,7 @@ def rasterise(
     center = center.astype(np.uint8)
     result = center[label.flatten()]
     result = result.reshape((img.shape))
-    
+
     # Scale back up to the original image size, with alpha scaled + merged if needed
     result = cv2.resize(result, (d_w * scale, d_h * scale), interpolation=cv2.INTER_NEAREST)
     if alpha_mode:
@@ -108,8 +108,8 @@ def rasterise(
         r, g, b = cv2.split(result)
         result = cv2.merge((r, g, b, a))
 
- 
-    # iterate through each cluster color, and genereate a RGB hexcode.  
+
+    # iterate through each cluster color, and genereate a RGB hexcode.
     colors = []
     for res_c in center:
         color_code = '#{0:02x}{1:02x}{2:02x}'.format(res_c[2], res_c[1], res_c[0])

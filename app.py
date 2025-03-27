@@ -79,6 +79,7 @@ def prune_files():
         cutoff = time() - app.config['IMAGE_LIFESPAN']
         paths = [path.join(static_img, file) for file in listdir(static_img)]
         paths += [path.join(static_res , file) for file in listdir(static_res)]
+        paths = [p for p in paths if '.gitignore' not in p]
         hits = 0
         misses = 0
 
