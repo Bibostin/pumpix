@@ -5,17 +5,27 @@ rasterisation of images in a minimalistic, easy to use way.
 
 ![Example](pumpix_static/oni.png)
 
-You can find a reference deployment of the app [here](https://www.coenin.co.uk/pumpix)
+Pumpix makes the following changes that are not found in MPC:
+ - Better User configuration (via yaml file)
+ - Better configuration parameters
+ - Rate limiting
+ - Input validation / sanitization
+ - Removes jquery + bootstrap for frontend styling
+ - Verbose error handling
 
-Pumpix doesn't aim to be the best tool for this purpose, rather a simple one
-thats easy to enjoy. If you need somthing with a more rounded feature set,
-consider [Dithermark](https://app.dithermark.com), its very cool :)
+You can find a reference deployment of the app [here](https://www.coenin.co.uk/pumpix) if you
+would like to play around.
+
+Pumpix is one of many tools available for the purpose of rasterisation and 
+comparitively, its a rather a simple one thats easy to enjoy.
+If you need somthing with a more rounded feature set, consider 
+[Dithermark](https://app.dithermark.com), its very cool :)
 
 
 # Installation:
+- Pumpix should run anywhere python does, however it requires a version >= `3.9`.
 
 ### Run locally (localhost):
-- Pumpix should run anywhere python does, however it requires a version >= `3.9`.
 - Clone the repository: `git clone https://github.com/Bibostin/pumpix.git; cd pumpix`
 - Setup a pyenv: `python -m venv venv`
 - Source the pyenv for package installation `source venv/bin/<APPROPRIATE_ACTIVATE>`
@@ -72,5 +82,5 @@ pumpix exposes itself for proxying via a wsgi socket.
 
 # Credits:
 - Contact me at bibostin@coenin.co.uk or via issue for requests / bugs
-- [Tsutsuji](https://monopro.org), for the original Flask program.
+- [Tsutsuji](https://monopro.org), for the original Flask program, its awesome!
 - Lax for the cute name.
