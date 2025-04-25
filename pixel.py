@@ -1,4 +1,3 @@
-# coding:utf-8
 import cv2
 from PIL import Image
 import numpy as np
@@ -16,9 +15,10 @@ n4 = np.array([[0, 1, 0],
               np.uint8)
 
 def rasterise(
-    src, k=3, scale=2,  blur=0, erode=0, saturation=0, contrast=0,
-    color=True, alpha=True
-):
+        src, k=3, scale=2,  blur=0,
+        erode=0, saturation=0, contrast=0,
+        color=True, alpha=True
+    ):
 
     # Most images have a colour mode that pillow can determine:
     # Luminance (L) - each pixels shade (greyscale is one 8 bit int (0-256)
@@ -56,12 +56,11 @@ def rasterise(
     elif color:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         h, w, c = img.shape
-    # otherwise this is is an L image, pull
+    # otherwise this is is an L image, pull colour and set it to 0 hard.
     else:
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         h, w = img.shape
         c = 0
-
     # increase the saturation of the image
     if saturation in [1.5, 2.0, 2.5]:
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
@@ -107,7 +106,6 @@ def rasterise(
         a = cv2.resize(a, (d_w * scale, d_h * scale), interpolation=cv2.INTER_NEAREST)
         r, g, b = cv2.split(result)
         result = cv2.merge((r, g, b, a))
-
 
     # iterate through each cluster color, and genereate a RGB hexcode.
     colors = []
