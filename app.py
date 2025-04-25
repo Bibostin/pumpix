@@ -42,11 +42,15 @@ if app.config['BEHIND_PROXY']:
         x_prefix=1
     )
 
-def with_templates(org_image=None, result_path=None, colors=None, error=None,
-    k=None, scale=None, erode=None, blur=None, saturation=None, contrast=None, alpha=None):
+def with_templates(
+        org_image=None, result_path=None, colors=None, error=None,
+        k=None, scale=None, erode=None, blur=None, saturation=None,
+        contrast=None, alpha=None
+    ):
     ''' Define a standard means for the app to returm a HTML doc to
     A prospective client. Specific template params bellow are all
     optional, and can be added / called as needed.'''
+
     return render_template(
         'index.html',
         k=k,
@@ -118,7 +122,7 @@ def post():
         # do a quick coarse check the extension is actually an image.
         # fail quickly here for valid clients who make a mistake.
         img_filename = secure_filename(img.filename)
-        img_extension = str(path.splitext(img_filename)[1])
+        img_extension = str(path.splitext(img_filename)[1]).casefold()
         if img_extension not in app.config['UPLOAD_EXTENSIONS']:
             err = f'Invalid file format! (Valid: {app.config["UPLOAD_EXTENSIONS"]})'
             return with_templates(error=err)
@@ -127,6 +131,8 @@ def post():
         # file header is to infer the extension, then check validity.
         header = img.stream.read(261)
         header_format = guess(header)
+        img.stream.seek(0)
+
         if not header_format:
             err=f'{img_filename} appears to be corrupted, or missing its file header.'
             return with_templates(error=err)
@@ -140,8 +146,6 @@ def post():
         img_name = md5(str(datetime.now()).encode('utf-8')).hexdigest()
         img_path = path.join('pumpix_static/img', img_name + img_extension)
         result_path = path.join('pumpix_static/results', img_name + '.png')
-        # reseek because were ahead of the stream after fetching the header
-        img.stream.seek(0)
         img.save(img_path)
 
         # reopen with pillow to get access to its image propertys and methods,
