@@ -63,7 +63,7 @@ then as seperate web servers, or `app.<domain>.<tld>` to simplify TLS deployment
 This section is valid for both a direct install, and a container, in both cases
 pumpix exposes itself for proxying via a wsgi socket.
 
-- In app.py, make sure `BEHIND_PROXY` is set to `True`
+- In config.yaml, make sure `BEHIND_PROXY` is set to `True`
 - Ensure pumpix is running (either in a container or locally.)
 - Add the following location definition to your nginx configuration.
 ```
